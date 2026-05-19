@@ -5,7 +5,7 @@ set -e
 
 APP_NAME="SoundLock"
 BUNDLE="$APP_NAME.app"
-SOURCES="Sources/main.swift Sources/AppDelegate.swift Sources/AudioDeviceMonitor.swift Sources/ContentView.swift"
+SOURCES=$(find Sources -name '*.swift' | tr '\n' ' ')
 
 # ── 1. Generate icon (always regenerated so design changes take effect) ──
 echo "==> Generating icon..."
