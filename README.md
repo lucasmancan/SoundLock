@@ -135,6 +135,18 @@ No polling. No background threads. No timers in steady state. The app sits compl
 
 ---
 
+## Support
+
+If SoundLock saved your sanity, consider buying me a coffee.
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/lucasmancan">
+    <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=lucasmancan&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy Me A Coffee" />
+  </a>
+</p>
+
+---
+
 ## License
 
 MIT
