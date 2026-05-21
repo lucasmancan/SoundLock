@@ -9,9 +9,9 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HeaderView(monitor: monitor)
-            Divider()
+            sectionDivider
 
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 VolumeControlView(
                     direction: .output,
                     volume: volume,
@@ -25,60 +25,68 @@ struct ContentView: View {
                     deviceName: monitor.currentPriorityInput?.name
                 )
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.vertical, Theme.sectionVerticalPadding)
+            sectionDivider
 
-            Divider()
+            PriorityListSectionView(
+                title: "Output Priority",
+                systemImage: "speaker.wave.2.fill",
+                direction: .output,
+                monitor: monitor
+            )
+            .padding(.vertical, Theme.sectionVerticalPadding)
+            sectionDivider
 
-            VStack(alignment: .leading, spacing: 10) {
-                PriorityListSectionView(
-                    title: "Output Priority",
-                    systemImage: "speaker.wave.2.fill",
-                    direction: .output,
-                    monitor: monitor
-                )
+            PriorityListSectionView(
+                title: "Input Priority",
+                systemImage: "mic.fill",
+                direction: .input,
+                monitor: monitor
+            )
+            .padding(.vertical, Theme.sectionVerticalPadding)
+            sectionDivider
 
-                Divider().padding(.horizontal, 12).padding(.vertical, 2)
-
-                PriorityListSectionView(
-                    title: "Input Priority",
-                    systemImage: "mic.fill",
-                    direction: .input,
-                    monitor: monitor
-                )
-
-                Divider().padding(.horizontal, 12)
-
-                launchAtLoginRow
-            }
-            .padding(.vertical, 8)
-
-            Divider()
+            settingsSection
+            sectionDivider
 
             FooterView(monitor: monitor)
+                .padding(.vertical, 2)
         }
         .frame(minWidth: Constants.UI.popoverWidth, maxWidth: Constants.UI.popoverWidth)
+        .background(VisualEffectBackground())
     }
 
-    private var launchAtLoginRow: some View {
-        HStack {
-            Image(systemName: "arrow.up.circle")
-                .frame(width: 14)
+    private var sectionDivider: some View {
+        Divider().opacity(Theme.dividerOpacity)
+    }
+
+    private var settingsSection: some View {
+        VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
+            Text("Settings")
+                .font(Theme.sectionTitleFont)
                 .foregroundColor(.secondary)
-                .font(.caption)
-            Text("Launch at login")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Spacer()
-            Toggle("", isOn: Binding(
-                get: { settings.launchAtLoginEnabled },
-                set: { settings.launchAtLoginEnabled = $0 }
-            ))
-            .toggleStyle(.switch)
-            .labelsHidden()
-            .scaleEffect(0.7)
+                .padding(.horizontal, Theme.horizontalInset)
+                .padding(.top, 2)
+
+            HStack(spacing: 10) {
+                Image(systemName: "arrow.up.right.circle")
+                    .font(.system(size: Theme.rowIconSize))
+                    .foregroundColor(.secondary)
+                    .frame(width: Theme.rowIconFrame)
+                Text("Launch at login")
+                    .font(Theme.rowTitleFont)
+                Spacer()
+                Toggle("", isOn: Binding(
+                    get: { settings.launchAtLoginEnabled },
+                    set: { settings.launchAtLoginEnabled = $0 }
+                ))
+                .toggleStyle(.switch)
+                .labelsHidden()
+                .controlSize(.small)
+            }
+            .padding(.horizontal, Theme.horizontalInset)
+            .frame(height: Theme.rowHeight)
         }
-        .padding(.horizontal, 12)
-        .padding(.bottom, 4)
+        .padding(.vertical, Theme.sectionVerticalPadding)
     }
 }

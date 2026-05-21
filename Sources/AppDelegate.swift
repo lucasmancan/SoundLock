@@ -41,7 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "mic.badge.plus",
+            button.image = NSImage(systemSymbolName: "headphones",
                                    accessibilityDescription: "SoundLock")
             button.action = #selector(togglePopover(_:))
             button.target = self

@@ -29,12 +29,12 @@ struct VolumeControlView: View {
     }
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             Button(action: toggleMute) {
                 Image(systemName: iconName)
                     .foregroundColor(muted ? .red : .blue)
-                    .font(.system(size: Constants.UI.volumeIconSize))
-                    .frame(width: 20)
+                    .font(.system(size: Theme.rowIconSize))
+                    .frame(width: Theme.rowIconFrame)
             }
             .buttonStyle(.borderless)
             .cursor(.pointingHand)
@@ -42,17 +42,18 @@ struct VolumeControlView: View {
             VStack(alignment: .leading, spacing: 3) {
                 if let name = deviceName {
                     Text(name)
-                        .font(.caption.weight(.medium))
+                        .font(Theme.rowTitleFont)
                         .lineLimit(1)
                     sliderOrPlaceholder
                 } else {
                     Text("Add a device to the priority list below")
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundColor(.secondary)
-                        .italic()
                 }
             }
         }
+        .padding(.horizontal, Theme.horizontalInset)
+        .padding(.vertical, 4)
     }
 
     @ViewBuilder
@@ -64,13 +65,13 @@ struct VolumeControlView: View {
                     .disabled(muted)
                     .opacity(muted ? Constants.UI.placeholderOpacity : 1)
                 Text("\(Int(volumeBinding.wrappedValue * 100))%")
-                    .font(.caption2.monospacedDigit())
+                    .font(.system(size: 11).monospacedDigit())
                     .foregroundColor(.secondary)
                     .frame(width: Constants.UI.percentLabelWidth, alignment: .trailing)
             }
         } else {
             Text("Volume not adjustable")
-                .font(.caption2)
+                .font(.system(size: 11))
                 .foregroundColor(.secondary)
         }
     }

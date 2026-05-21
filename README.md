@@ -1,8 +1,16 @@
+<p align="center">
+  <img src="docs/icon.png" alt="SoundLock icon" width="160" />
+</p>
+
 # SoundLock
 
 **Your audio. Your rules. Always.**
 
 SoundLock is a lightweight macOS menu bar app that stops the system from hijacking your audio devices. Define a priority order for your headphones, speakers, and microphones — and SoundLock silently enforces it, every time, in the background.
+
+<p align="center">
+  <img src="docs/screenshot-popover.png" alt="SoundLock menu bar popover" width="320" />
+</p>
 
 ---
 

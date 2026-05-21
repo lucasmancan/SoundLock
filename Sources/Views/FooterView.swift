@@ -5,33 +5,35 @@ struct FooterView: View {
     @ObservedObject var monitor: AudioDeviceMonitor
 
     var body: some View {
-        HStack {
-            Spacer()
-            footerButton(systemImage: "arrow.clockwise", help: "Refresh", color: .secondary) {
+        HStack(spacing: 0) {
+            iconButton(systemImage: "arrow.clockwise", help: "Refresh Devices", color: .secondary) {
                 monitor.refreshDevices()
             }
-            Spacer()
-            footerButton(systemImage: "speaker.wave.2", help: "Sound Settings", color: .secondary) {
+            iconButton(systemImage: "speaker.wave.2", help: "Sound Settings", color: .secondary) {
                 openSystemSettings(Constants.SystemURL.soundSettings)
             }
-            Spacer()
-            footerButton(systemImage: "dot.radiowaves.left.and.right", help: "Bluetooth Settings", color: .secondary) {
+            iconButton(systemImage: "dot.radiowaves.left.and.right", help: "Bluetooth Settings", color: .secondary) {
                 openSystemSettings(Constants.SystemURL.bluetoothSettings)
             }
-            Spacer()
-            footerButton(systemImage: "power", help: "Quit SoundLock", color: .red) {
+            iconButton(systemImage: "power", help: "Quit SoundLock", color: .red) {
                 NSApplication.shared.terminate(nil)
             }
-            Spacer()
         }
+        .padding(.horizontal, Theme.horizontalInset)
         .padding(.vertical, 8)
     }
 
-    private func footerButton(systemImage: String, help: String, color: Color, action: @escaping () -> Void) -> some View {
+    private func iconButton(systemImage: String,
+                            help: String,
+                            color: Color,
+                            action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.system(size: 13))
+                .font(.system(size: Theme.rowIconSize))
                 .foregroundColor(color)
+                .frame(maxWidth: .infinity)
+                .frame(height: 24)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
         .help(help)

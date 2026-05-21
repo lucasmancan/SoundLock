@@ -4,19 +4,16 @@ struct HeaderView: View {
     @ObservedObject var monitor: AudioDeviceMonitor
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "lock.circle.fill")
-                .font(.title3)
-                .foregroundColor(.blue)
+        HStack {
             Text("SoundLock")
-                .font(.subheadline.weight(.semibold))
+                .font(Theme.headerTitleFont)
             Spacer()
             Toggle("", isOn: $monitor.guardEnabled)
                 .toggleStyle(.switch)
                 .labelsHidden()
-                .scaleEffect(0.75)
+                .controlSize(.small)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 9)
+        .padding(.horizontal, Theme.headerHorizontalInset)
+        .padding(.vertical, 10)
     }
 }
