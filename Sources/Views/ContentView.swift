@@ -53,7 +53,6 @@ struct ContentView: View {
                 .padding(.vertical, 2)
         }
         .frame(minWidth: Constants.UI.popoverWidth, maxWidth: Constants.UI.popoverWidth)
-        .background(VisualEffectBackground())
     }
 
     private var sectionDivider: some View {

@@ -24,8 +24,7 @@ struct VisualEffectBackground: NSViewRepresentable {
         let v = NSVisualEffectView()
         v.material = material
         v.blendingMode = blendingMode
-        v.state = .active
-        v.isEmphasized = true
+        v.state = .followsWindowActiveState
         return v
     }
 
