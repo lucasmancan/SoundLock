@@ -1,11 +1,13 @@
 import Cocoa
 import SwiftUI
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     var statusItem: NSStatusItem?
     var popover: NSPopover?
     var hostingController: NSHostingController<AnyView>?
+    private var globalEventMonitor: Any?
+    private var localEventMonitor: Any?
 
     private let repository = PriorityListRepository()
     private let volume = AudioVolumeService()
@@ -34,14 +36,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let hc = NSHostingController(rootView: contentView)
         hostingController = hc
         popover = NSPopover()
+        popover?.animates = false
         popover?.behavior = .transient
         popover?.contentViewController = hc
+        popover?.delegate = self
 
         monitor.startMonitoring()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         NotificationCenter.default.removeObserver(self)
+        stopEventMonitors()
         closePopover(notification)
         monitor.stopMonitoring()
     }
@@ -75,7 +80,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func closePopover(_ sender: Any?) {
         guard let popover, popover.isShown else { return }
+        stopEventMonitors()
         popover.performClose(sender)
+    }
+
+    private func startEventMonitors() {
+        stopEventMonitors()
+
+        globalEventMonitor = NSEvent.addGlobalMonitorForEvents(
+            matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+        ) { [weak self] _ in
+            self?.closePopover(nil)
+        }
+
+        localEventMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+        ) { [weak self] event in
+            guard let self, let popover = self.popover, popover.isShown else { return event }
+            guard let eventWindow = event.window else { return event }
+
+            let popoverWindow = popover.contentViewController?.view.window
+            let statusWindow = self.statusItem?.button?.window
+            if eventWindow === popoverWindow || eventWindow === statusWindow {
+                return event
+            }
+
+            self.closePopover(nil)
+            return event
+        }
+    }
+
+    private func stopEventMonitors() {
+        if let globalEventMonitor {
+            NSEvent.removeMonitor(globalEventMonitor)
+            self.globalEventMonitor = nil
+        }
+        if let localEventMonitor {
+            NSEvent.removeMonitor(localEventMonitor)
+            self.localEventMonitor = nil
+        }
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        stopEventMonitors()
     }
 
     @objc func togglePopover(_ sender: Any?) {
@@ -92,6 +139,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let height = min(ideal?.height ?? Constants.UI.popoverDefaultHeight, maxHeight)
         popover.contentSize = NSSize(width: Constants.UI.popoverWidth, height: height)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        startEventMonitors()
         NSApp.activate(ignoringOtherApps: true)
     }
 }
