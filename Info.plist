@@ -5,7 +5,7 @@
     <key>CFBundleExecutable</key>
     <string>SoundLock</string>
     <key>CFBundleIdentifier</key>
-    <string>com.user.soundlock</string>
+    <string>com.lucasmancan.soundlock</string>
     <key>CFBundleName</key>
     <string>SoundLock</string>
     <key>CFBundleDisplayName</key>

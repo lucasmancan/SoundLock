@@ -1,83 +1,205 @@
 #!/usr/bin/swift
-// Generates soundlock_1024.png
-// Simple headphones silhouette on gradient squircle.
-// CG bitmap context: Y=0 = bottom of image; HIGH Y = displayed near top.
+// Generates the app icon source, README icon, and menu bar template icon.
 import Foundation
 import CoreGraphics
 import AppKit
 
-let S    = 1024
-let size = CGFloat(S)
-let cs   = CGColorSpaceCreateDeviceRGB()
+let colorSpace = CGColorSpaceCreateDeviceRGB()
 
-let ctx = CGContext(data: nil, width: S, height: S, bitsPerComponent: 8, bytesPerRow: 0,
-                   space: cs,
-                   bitmapInfo: CGBitmapInfo(rawValue:
-                       CGImageAlphaInfo.premultipliedFirst.rawValue).rawValue)!
+func makeBitmapContext(size: Int, transparent: Bool = false) -> CGContext {
+    let alphaInfo: CGImageAlphaInfo = transparent ? .premultipliedLast : .premultipliedFirst
+    return CGContext(
+        data: nil,
+        width: size,
+        height: size,
+        bitsPerComponent: 8,
+        bytesPerRow: 0,
+        space: colorSpace,
+        bitmapInfo: CGBitmapInfo(rawValue: alphaInfo.rawValue).rawValue
+    )!
+}
 
-// ── 1. Squircle gradient background ──────────────────────────────────────
-let bgPath = CGPath(roundedRect: CGRect(x: 0, y: 0, width: size, height: size),
-                    cornerWidth: 224, cornerHeight: 224, transform: nil)
-ctx.addPath(bgPath)
-ctx.clip()
+func savePNG(_ image: CGImage, to path: String) throws {
+    let rep = NSBitmapImageRep(cgImage: image)
+    let data = rep.representation(using: .png, properties: [:])!
+    try data.write(to: URL(fileURLWithPath: path))
+}
 
-let grad = CGGradient(
-    colorsSpace: cs,
-    colors: [
-        CGColor(srgbRed: 0.20, green: 0.42, blue: 0.94, alpha: 1),
-        CGColor(srgbRed: 0.44, green: 0.22, blue: 0.84, alpha: 1),
-    ] as CFArray,
-    locations: [0, 1])!
-ctx.drawLinearGradient(grad,
-    start: CGPoint(x: 0,    y: size),
-    end:   CGPoint(x: size, y: 0),
-    options: [])
-ctx.resetClip()
+func withFlippedContext(_ context: CGContext, size: CGFloat, draw: () -> Void) {
+    context.saveGState()
+    context.translateBy(x: 0, y: size)
+    context.scaleBy(x: 1, y: -1)
+    draw()
+    context.restoreGState()
+}
 
-let white = CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
+func drawRoundedPath(_ context: CGContext, rect: CGRect, radius: CGFloat) {
+    context.addPath(CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil))
+}
 
-// ── 2. Headphones ─────────────────────────────────────────────────────────
-let cx: CGFloat = size / 2
-let cy: CGFloat = 552                 // CG Y of headband arc center
+func drawSystemSymbol(
+    _ symbolName: String,
+    in context: CGContext,
+    rect: CGRect,
+    pointSize: CGFloat,
+    color: NSColor,
+    weight: NSFont.Weight = .regular,
+    mirrored: Bool = false
+) {
+    let configuration = NSImage.SymbolConfiguration(pointSize: pointSize, weight: weight, scale: .large)
+    guard let symbol = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
+        .withSymbolConfiguration(configuration) else { return }
+    guard let tinted = tintedImage(from: symbol, color: color) else { return }
+    var proposedRect = CGRect(origin: .zero, size: tinted.size)
+    guard let cgImage = tinted.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil) else { return }
 
-// 2a. Headband — thick stroked top-half arc (∩ in displayed orientation)
-let bandR:  CGFloat = 300
-let bandLW: CGFloat = 70
+    context.saveGState()
+    if mirrored {
+        context.translateBy(x: rect.minX + rect.maxX, y: 0)
+        context.scaleBy(x: -1, y: 1)
+    }
+    context.translateBy(x: 0, y: rect.minY + rect.maxY)
+    context.scaleBy(x: 1, y: -1)
+    context.interpolationQuality = .high
+    context.draw(cgImage, in: rect)
+    context.restoreGState()
+}
 
-ctx.setStrokeColor(white)
-ctx.setLineWidth(bandLW)
-ctx.setLineCap(.round)
+func tintedImage(from image: NSImage, color: NSColor) -> NSImage? {
+    let tinted = NSImage(size: image.size)
+    tinted.lockFocus()
+    let bounds = CGRect(origin: .zero, size: image.size)
+    image.draw(in: bounds)
+    color.set()
+    bounds.fill(using: .sourceAtop)
+    tinted.unlockFocus()
+    return tinted
+}
 
-let band = CGMutablePath()
-band.addArc(center: CGPoint(x: cx, y: cy),
-            radius: bandR,
-            startAngle: 0, endAngle: .pi,
-            clockwise: false)
-ctx.addPath(band)
-ctx.strokePath()
+func drawHeadphonePriorityMark(in context: CGContext, size: CGFloat, strokeColor: CGColor, soundColor: CGColor) {
+    drawSystemSymbol(
+        "headphones",
+        in: context,
+        rect: CGRect(x: size * 0.03, y: size * 0.18, width: size * 0.58, height: size * 0.58),
+        pointSize: size * 0.40,
+        color: NSColor(cgColor: strokeColor) ?? .white,
+        weight: .regular,
+        mirrored: false
+    )
 
-// 2b. Earcups — rounded rects hanging from each arc end
-let cupW: CGFloat = 200
-let cupH: CGFloat = 260
-let cupR: CGFloat = 56
+    let laneHeight = size * 0.115
+    let laneX = size * 0.64
+    let laneYs = [size * 0.20, size * 0.42, size * 0.64]
+    let laneWidths = [size * 0.24, size * 0.20, size * 0.16]
+    let laneColors = [soundColor, strokeColor.copy(alpha: 0.92)!, strokeColor.copy(alpha: 0.72)!]
 
-let cupTopCG = cy
-let cupMinCG = cupTopCG - cupH
+    for index in laneYs.indices {
+        let rect = CGRect(
+            x: laneX,
+            y: laneYs[index],
+            width: laneWidths[index],
+            height: laneHeight
+        )
+        context.setFillColor(laneColors[index])
+        drawRoundedPath(context, rect: rect, radius: laneHeight / 2)
+        context.fillPath()
+    }
 
-ctx.setFillColor(white)
-let leftCup = CGRect(x: cx - bandR - cupW / 2, y: cupMinCG,
-                     width: cupW, height: cupH)
-let rightCup = CGRect(x: cx + bandR - cupW / 2, y: cupMinCG,
-                      width: cupW, height: cupH)
+    let priorityDotRadius = size * 0.044
+    context.setFillColor(soundColor)
+    context.fillEllipse(in: CGRect(
+        x: size * 0.58 - priorityDotRadius,
+        y: size * 0.255 - priorityDotRadius,
+        width: priorityDotRadius * 2,
+        height: priorityDotRadius * 2
+    ))
+}
 
-ctx.addPath(CGPath(roundedRect: leftCup,  cornerWidth: cupR, cornerHeight: cupR, transform: nil))
-ctx.fillPath()
-ctx.addPath(CGPath(roundedRect: rightCup, cornerWidth: cupR, cornerHeight: cupR, transform: nil))
-ctx.fillPath()
+extension CGContext {
+    func strokeArcSegments(boundingBox: CGRect, startAngle: CGFloat, endAngle: CGFloat) {
+        let path = CGMutablePath()
+        path.addArc(
+            center: CGPoint(x: boundingBox.midX, y: boundingBox.midY),
+            radius: boundingBox.height / 2,
+            startAngle: startAngle * .pi / 180,
+            endAngle: endAngle * .pi / 180,
+            clockwise: false
+        )
+        addPath(path)
+        strokePath()
+    }
+}
 
-// ── 3. Export ─────────────────────────────────────────────────────────────
-let cgImg = ctx.makeImage()!
-let rep   = NSBitmapImageRep(cgImage: cgImg)
-let data  = rep.representation(using: .png, properties: [:])!
-try! data.write(to: URL(fileURLWithPath: "soundlock_1024.png"))
-print("✅  soundlock_1024.png saved")
+func generateAppIcon() throws {
+    let pixelSize = 1024
+    let size = CGFloat(pixelSize)
+    let context = makeBitmapContext(size: pixelSize)
+
+    let squircle = CGPath(
+        roundedRect: CGRect(x: 0, y: 0, width: size, height: size),
+        cornerWidth: 224,
+        cornerHeight: 224,
+        transform: nil
+    )
+    context.addPath(squircle)
+    context.clip()
+
+    let gradient = CGGradient(
+        colorsSpace: colorSpace,
+        colors: [
+            CGColor(srgbRed: 0.05, green: 0.15, blue: 0.38, alpha: 1),
+            CGColor(srgbRed: 0.07, green: 0.44, blue: 0.74, alpha: 1),
+            CGColor(srgbRed: 0.08, green: 0.67, blue: 0.62, alpha: 1)
+        ] as CFArray,
+        locations: [0, 0.55, 1]
+    )!
+    context.drawLinearGradient(
+        gradient,
+        start: CGPoint(x: 0, y: size),
+        end: CGPoint(x: size, y: 0),
+        options: []
+    )
+    context.resetClip()
+
+    context.setFillColor(CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 0.12))
+        context.fillEllipse(in: CGRect(x: size * 0.10, y: size * 0.56, width: size * 0.42, height: size * 0.42))
+        context.fillEllipse(in: CGRect(x: size * 0.54, y: size * 0.14, width: size * 0.26, height: size * 0.26))
+
+    withFlippedContext(context, size: size) {
+        drawHeadphonePriorityMark(
+            in: context,
+            size: size,
+            strokeColor: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1),
+            soundColor: CGColor(srgbRed: 0.49, green: 1.0, blue: 0.86, alpha: 1)
+        )
+    }
+
+    let image = context.makeImage()!
+    try savePNG(image, to: "soundlock_1024.png")
+
+    let docsDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("docs")
+    try FileManager.default.createDirectory(at: docsDir, withIntermediateDirectories: true)
+    try savePNG(image, to: docsDir.appendingPathComponent("icon.png").path)
+}
+
+func generateStatusIcon() throws {
+    let pixelSize = 96
+    let size = CGFloat(pixelSize)
+    let context = makeBitmapContext(size: pixelSize, transparent: true)
+
+    withFlippedContext(context, size: size) {
+        drawHeadphonePriorityMark(
+            in: context,
+            size: size,
+            strokeColor: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1),
+            soundColor: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
+        )
+    }
+
+    let image = context.makeImage()!
+    try savePNG(image, to: "StatusIcon.png")
+}
+
+try generateAppIcon()
+try generateStatusIcon()
+print("✅  soundlock_1024.png, docs/icon.png, and StatusIcon.png saved")

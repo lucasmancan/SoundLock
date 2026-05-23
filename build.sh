@@ -1,7 +1,10 @@
 #!/bin/bash
 # build.sh — Compiles SoundLock and assembles an .app bundle
-# Run from inside the AudioGuard/ folder:  bash build.sh
+# Run from anywhere: bash /path/to/build.sh
 set -e
+
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT_DIR"
 
 APP_NAME="SoundLock"
 BUNDLE="$APP_NAME.app"
@@ -41,8 +44,10 @@ mkdir -p "$BUNDLE/Contents/Resources"
 cp "$APP_NAME"       "$BUNDLE/Contents/MacOS/$APP_NAME"
 cp "Info.plist"      "$BUNDLE/Contents/Info.plist"
 cp "AppIcon.icns"    "$BUNDLE/Contents/Resources/AppIcon.icns"
+cp "StatusIcon.png"  "$BUNDLE/Contents/Resources/StatusIcon.png"
 
 rm "$APP_NAME"
+rm -f "StatusIcon.png"
 
 echo ""
 echo "✅  Done!  open $BUNDLE"

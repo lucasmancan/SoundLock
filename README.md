@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/icon.png" alt="SoundLock icon" width="160" />
+  <img src="docs/icon.png" alt="SoundLock headphones and priority icon" width="160" />
 </p>
 
 # SoundLock
@@ -7,6 +7,8 @@
 **Your audio. Your rules. Always.**
 
 SoundLock is a lightweight macOS menu bar app that stops the system from hijacking your audio devices. Define a priority order for your headphones, speakers, and microphones — and SoundLock silently enforces it, every time, in the background.
+
+Its refreshed icon system pairs white headphones with ranked priority lanes, so the app icon and menu bar icon both reflect the same device-priority idea at a glance.
 
 <p align="center">
   <img src="docs/screenshot-popover.png" alt="SoundLock menu bar popover" width="320" />
@@ -112,7 +114,7 @@ Requires macOS 13 or later and Xcode Command Line Tools.
 
 ```bash
 git clone <repo>
-cd AudioGuard
+cd SoundLock
 bash build.sh
 open SoundLock.app
 ```
