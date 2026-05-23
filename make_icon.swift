@@ -180,6 +180,7 @@ func generateAppIcon() throws {
     let docsDir = URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("docs")
     try FileManager.default.createDirectory(at: docsDir, withIntermediateDirectories: true)
     try savePNG(image, to: docsDir.appendingPathComponent("icon.png").path)
+    try savePNG(image, to: docsDir.appendingPathComponent("readme-icon.png").path)
 }
 
 func generateStatusIcon() throws {
@@ -202,4 +203,4 @@ func generateStatusIcon() throws {
 
 try generateAppIcon()
 try generateStatusIcon()
-print("✅  soundlock_1024.png, docs/icon.png, and StatusIcon.png saved")
+print("✅  soundlock_1024.png, docs/icon.png, docs/readme-icon.png, and StatusIcon.png saved")

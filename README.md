@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/icon.png" alt="SoundLock headphones and priority icon" width="160" />
+  <img src="docs/readme-icon.png" alt="SoundLock headphones and priority icon" width="160" />
 </p>
 
 # SoundLock
