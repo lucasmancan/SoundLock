@@ -120,10 +120,24 @@ enum CoreAudioBridge {
 
         for id in ids {
             guard isPhysicalDevice(id) else { continue }
+            let supportsOutput = hasChannels(id, input: false)
+            let supportsInput = hasChannels(id, input: true)
+            guard supportsOutput || supportsInput else { continue }
+
             let uid  = deviceUID(id)
             let name = deviceName(id)
-            if hasChannels(id, input: false) { outputs.append(AudioDevice(id: id, uid: uid, name: name)) }
-            if hasChannels(id, input: true)  { inputs.append(AudioDevice(id: id, uid: uid, name: name)) }
+            let device = AudioDevice(
+                id: id,
+                uid: uid,
+                name: name,
+                modelUID: deviceModelUID(id),
+                manufacturer: deviceManufacturer(id),
+                transportType: deviceTransportType(id),
+                supportsOutput: supportsOutput,
+                supportsInput: supportsInput
+            )
+            if supportsOutput { outputs.append(device) }
+            if supportsInput  { inputs.append(device) }
         }
         return (outputs, inputs)
     }
@@ -131,14 +145,7 @@ enum CoreAudioBridge {
     // MARK: - Per-device property helpers
 
     private static func isPhysicalDevice(_ deviceID: AudioDeviceID) -> Bool {
-        var addr = AudioObjectPropertyAddress(
-            mSelector: kAudioDevicePropertyTransportType,
-            mScope: kAudioObjectPropertyScopeGlobal, mElement: 0)
-        var transport: UInt32 = 0
-        var size = UInt32(MemoryLayout<UInt32>.size)
-        guard AudioObjectGetPropertyData(deviceID, &addr, 0, nil, &size, &transport) == noErr
-        else { return false }
-        return physicalTransportTypes.contains(transport)
+        physicalTransportTypes.contains(deviceTransportType(deviceID))
     }
 
     private static func hasChannels(_ deviceID: AudioDeviceID, input: Bool) -> Bool {
@@ -175,11 +182,30 @@ enum CoreAudioBridge {
         cfStringProperty(kAudioDevicePropertyDeviceUID, for: id) ?? "unknown-\(id)"
     }
 
+    private static func deviceModelUID(_ id: AudioDeviceID) -> String {
+        cfStringProperty(kAudioDevicePropertyModelUID, for: id) ?? ""
+    }
+
+    private static func deviceManufacturer(_ id: AudioDeviceID) -> String {
+        cfStringProperty(kAudioObjectPropertyManufacturer, for: id) ?? "Unknown Manufacturer"
+    }
+
     private static func deviceName(_ id: AudioDeviceID) -> String {
         cfStringProperty(kAudioObjectPropertyName,      for: id) ??
         cfStringProperty(kAudioObjectPropertyModelName, for: id) ??
         cfStringProperty(kAudioDevicePropertyDeviceUID, for: id) ??
         "Device \(id)"
+    }
+
+    private static func deviceTransportType(_ id: AudioDeviceID) -> UInt32 {
+        var addr = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyTransportType,
+            mScope: kAudioObjectPropertyScopeGlobal, mElement: 0)
+        var transport: UInt32 = 0
+        var size = UInt32(MemoryLayout<UInt32>.size)
+        guard AudioObjectGetPropertyData(id, &addr, 0, nil, &size, &transport) == noErr
+        else { return 0 }
+        return transport
     }
 
     private static func scope(input: Bool) -> AudioObjectPropertyScope {

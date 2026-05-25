@@ -67,10 +67,10 @@ final class AudioDeviceMonitor: ObservableObject {
     // MARK: - Computed
 
     var currentPriorityOutput: AudioDevice? {
-        topConnected(list: priorityOutputList, in: outputDevices)
+        topConnected(list: priorityOutputList, in: outputDevices, input: false)
     }
     var currentPriorityInput: AudioDevice? {
-        topConnected(list: priorityInputList, in: inputDevices)
+        topConnected(list: priorityInputList, in: inputDevices, input: true)
     }
 
     // MARK: - Init
@@ -116,7 +116,7 @@ final class AudioDeviceMonitor: ObservableObject {
         let (out, inp) = CoreAudioBridge.enumeratePhysicalDevices()
         outputDevices = out
         inputDevices = inp
-        batchUpdatePriorityNames()
+        reconcilePriorityLists()
         syncAudioState()
     }
 
@@ -124,19 +124,19 @@ final class AudioDeviceMonitor: ObservableObject {
 
     func addToPriority(_ device: AudioDevice, input: Bool) {
         if input {
-            guard !priorityInputList.contains(where: { $0.uid == device.uid }) else { return }
-            priorityInputList.append(PriorityDevice(uid: device.uid, name: device.name))
+            guard !AudioDeviceIdentityResolver.isRepresented(device, in: priorityInputList, input: true) else { return }
+            priorityInputList.append(PriorityDevice(device: device, input: true))
         } else {
-            guard !priorityOutputList.contains(where: { $0.uid == device.uid }) else { return }
-            priorityOutputList.append(PriorityDevice(uid: device.uid, name: device.name))
+            guard !AudioDeviceIdentityResolver.isRepresented(device, in: priorityOutputList, input: false) else { return }
+            priorityOutputList.append(PriorityDevice(device: device, input: false))
         }
         assertPriority(input: input)
         syncAudioState()
     }
 
-    func removeFromPriority(uid: String, input: Bool) {
-        if input { priorityInputList.removeAll { $0.uid == uid } }
-        else      { priorityOutputList.removeAll { $0.uid == uid } }
+    func removeFromPriority(stableKey: String, input: Bool) {
+        if input { priorityInputList.removeAll { $0.identityKey(input: true) == stableKey } }
+        else      { priorityOutputList.removeAll { $0.identityKey(input: false) == stableKey } }
     }
 
     func movePriority(from: IndexSet, to: Int, input: Bool) {
@@ -144,6 +144,22 @@ final class AudioDeviceMonitor: ObservableObject {
         else      { priorityOutputList.move(fromOffsets: from, toOffset: to) }
         assertPriority(input: input)
         syncAudioState()
+    }
+
+    func isRepresentedInPriority(_ device: AudioDevice, input: Bool) -> Bool {
+        AudioDeviceIdentityResolver.isRepresented(
+            device,
+            in: input ? priorityInputList : priorityOutputList,
+            input: input
+        )
+    }
+
+    func isPriorityDeviceConnected(_ entry: PriorityDevice, input: Bool) -> Bool {
+        AudioDeviceIdentityResolver.matchDevice(
+            for: entry,
+            in: input ? inputDevices : outputDevices,
+            input: input
+        ) != nil
     }
 
     // MARK: - Listener callbacks
@@ -187,8 +203,8 @@ final class AudioDeviceMonitor: ObservableObject {
         guard guardEnabled else { return }
         let list      = input ? priorityInputList : priorityOutputList
         let connected = input ? inputDevices       : outputDevices
-        guard let bestEntry  = list.first(where: { e in connected.contains { $0.uid == e.uid } }),
-              let bestDevice = connected.first(where: { $0.uid == bestEntry.uid })
+        guard let bestEntry = list.first(where: { AudioDeviceIdentityResolver.matchDevice(for: $0, in: connected, input: input) != nil }),
+              let bestDevice = AudioDeviceIdentityResolver.matchDevice(for: bestEntry, in: connected, input: input)
         else { return }
         let current = CoreAudioBridge.getDefaultDevice(input: input)
         if current != bestDevice.id {
@@ -199,29 +215,24 @@ final class AudioDeviceMonitor: ObservableObject {
         }
     }
 
-    /// Updates stored device names in-place, assigning each list at most once
-    /// so didSet (and its debounced save) fires at most once per list.
-    private func batchUpdatePriorityNames() {
-        priorityOutputList = mergedNames(priorityOutputList, from: outputDevices) ?? priorityOutputList
-        priorityInputList  = mergedNames(priorityInputList,  from: inputDevices)  ?? priorityInputList
-    }
-
-    private func mergedNames(_ list: [PriorityDevice], from devices: [AudioDevice]) -> [PriorityDevice]? {
-        var copy = list
-        var changed = false
-        for i in copy.indices {
-            if let live = devices.first(where: { $0.uid == copy[i].uid }),
-               live.name != copy[i].name {
-                copy[i].name = live.name
-                changed = true
-            }
+    private func reconcilePriorityLists() {
+        let nextOutputs = AudioDeviceIdentityResolver.reconcile(priorityOutputList, with: outputDevices, input: false) { message in
+            NSLog("%@", message)
         }
-        return changed ? copy : nil
+        if nextOutputs != priorityOutputList {
+            priorityOutputList = nextOutputs
+        }
+
+        let nextInputs = AudioDeviceIdentityResolver.reconcile(priorityInputList, with: inputDevices, input: true) { message in
+            NSLog("%@", message)
+        }
+        if nextInputs != priorityInputList {
+            priorityInputList = nextInputs
+        }
     }
 
-    private func topConnected(list: [PriorityDevice], in devices: [AudioDevice]) -> AudioDevice? {
-        let uids = Set(devices.map(\.uid))
-        guard let best = list.first(where: { uids.contains($0.uid) }) else { return nil }
-        return devices.first { $0.uid == best.uid }
+    private func topConnected(list: [PriorityDevice], in devices: [AudioDevice], input: Bool) -> AudioDevice? {
+        guard let best = list.first(where: { AudioDeviceIdentityResolver.matchDevice(for: $0, in: devices, input: input) != nil }) else { return nil }
+        return AudioDeviceIdentityResolver.matchDevice(for: best, in: devices, input: input)
     }
 }

@@ -15,8 +15,7 @@ struct PriorityListSectionView: View {
     }
 
     private var addableDevices: [AudioDevice] {
-        let uids = Set(priorityList.map(\.uid))
-        return connectedDevices.filter { !uids.contains($0.uid) }
+        connectedDevices.filter { !monitor.isRepresentedInPriority($0, input: direction == .input) }
     }
 
     var body: some View {
@@ -71,9 +70,9 @@ struct PriorityListSectionView: View {
         PriorityRow(
             index: index,
             entry: entry,
-            connected: connectedDevices.contains { $0.uid == entry.uid },
+            connected: monitor.isPriorityDeviceConnected(entry, input: direction == .input),
             canDrag: priorityList.count >= 2,
-            onRemove: { monitor.removeFromPriority(uid: entry.uid, input: direction == .input) }
+            onRemove: { monitor.removeFromPriority(stableKey: entry.identityKey(input: direction == .input), input: direction == .input) }
         )
     }
 
