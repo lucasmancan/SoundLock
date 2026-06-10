@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/readme-icon.png" alt="SoundLock headphones and priority icon" width="160" />
+  <img src="docs/readme-icon.png" alt="SoundLock speaker and padlock icon" width="160" />
 </p>
 
 # SoundLock
@@ -8,7 +8,7 @@
 
 SoundLock is a lightweight macOS menu bar app that stops the system from hijacking your audio devices. Define a priority order for your headphones, speakers, and microphones — and SoundLock silently enforces it, every time, in the background.
 
-Its refreshed icon system pairs white headphones with ranked priority lanes, so the app icon and menu bar icon both reflect the same device-priority idea at a glance.
+Its icon pairs a speaker with a small padlock badge — a single glance says "your audio, held in place." The menu bar icon is state-aware: the padlock is shut while SoundLock is enforcing your order, and its shackle springs open (dimmed) when enforcement is paused.
 
 <p align="center">
   <img src="docs/screenshot-popover.png" alt="SoundLock menu bar popover" width="320" />

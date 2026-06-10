@@ -1,4 +1,5 @@
 import Cocoa
+import Combine
 import SwiftUI
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
@@ -8,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     var hostingController: NSHostingController<AnyView>?
     private var globalEventMonitor: Any?
     private var localEventMonitor: Any?
+    private var guardStateObserver: AnyCancellable?
 
     private let repository = PriorityListRepository()
     private let volume = AudioVolumeService()
@@ -25,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         )
 
         setupStatusItem()
+        observeGuardState()
 
         let contentView = AnyView(
             ContentView()
@@ -54,24 +57,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem?.button {
-            button.image = statusBarImage()
+            button.image = statusBarImage(locked: monitor.guardEnabled)
             button.imageScaling = .scaleProportionallyUpOrDown
             button.action = #selector(togglePopover(_:))
             button.target = self
         }
     }
 
-    private func statusBarImage() -> NSImage? {
-        if let path = Bundle.main.path(forResource: "StatusIcon", ofType: "png"),
+    private func observeGuardState() {
+        guardStateObserver = monitor.$guardEnabled
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] locked in
+                self?.statusItem?.button?.image = self?.statusBarImage(locked: locked)
+            }
+    }
+
+    private func statusBarImage(locked: Bool) -> NSImage? {
+        let resource = locked ? "StatusIcon" : "StatusIconUnlocked"
+        let description = locked ? "SoundLock — locked" : "SoundLock — unlocked"
+
+        if let path = Bundle.main.path(forResource: resource, ofType: "png"),
            let image = NSImage(contentsOfFile: path) {
             image.isTemplate = true
             image.size = NSSize(width: 24, height: 24)
-            image.accessibilityDescription = "SoundLock"
+            image.accessibilityDescription = description
             return image
         }
 
-        return NSImage(systemSymbolName: "headphones",
-                       accessibilityDescription: "SoundLock")
+        return NSImage(systemSymbolName: locked ? "lock.fill" : "lock.open",
+                       accessibilityDescription: description)
     }
 
     @objc private func handleApplicationDidResignActive(_ notification: Notification) {

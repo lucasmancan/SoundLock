@@ -69,10 +69,11 @@ mkdir -p "$BUNDLE/Contents/Resources"
 cp "$APP_NAME"       "$BUNDLE/Contents/MacOS/$APP_NAME"
 cp "Info.plist"      "$BUNDLE/Contents/Info.plist"
 cp "AppIcon.icns"    "$BUNDLE/Contents/Resources/AppIcon.icns"
-cp "StatusIcon.png"  "$BUNDLE/Contents/Resources/StatusIcon.png"
+cp "StatusIcon.png"          "$BUNDLE/Contents/Resources/StatusIcon.png"
+cp "StatusIconUnlocked.png"  "$BUNDLE/Contents/Resources/StatusIconUnlocked.png"
 
 rm "$APP_NAME"
-rm -f "StatusIcon.png"
+rm -f "StatusIcon.png" "StatusIconUnlocked.png"
 
 echo ""
 echo "✅  Done!  open $BUNDLE"

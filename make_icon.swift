@@ -1,5 +1,6 @@
 #!/usr/bin/swift
-// Generates the app icon source, README icon, and menu bar template icon.
+// Generates the app icon source, README icon, and menu bar template icons.
+// Mark: a speaker glyph with a small padlock badge at the bottom-right.
 import Foundation
 import CoreGraphics
 import AppKit
@@ -25,109 +26,59 @@ func savePNG(_ image: CGImage, to path: String) throws {
     try data.write(to: URL(fileURLWithPath: path))
 }
 
-func withFlippedContext(_ context: CGContext, size: CGFloat, draw: () -> Void) {
-    context.saveGState()
-    context.translateBy(x: 0, y: size)
-    context.scaleBy(x: 1, y: -1)
-    draw()
-    context.restoreGState()
-}
+/// Draws the speaker + padlock mark.
+///
+/// Geometry is authored in a 100×100, top-left-origin (SVG-style, y-down) design
+/// space and mapped into the context's native bottom-left-origin coordinates via
+/// `point`, so no global context flip is required.
+func drawSpeakerLockMark(in context: CGContext, size: CGFloat, color: CGColor, shackleOpen: Bool) {
+    let f = size / 100
+    func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * f, y: (100 - y) * f) }
 
-func drawRoundedPath(_ context: CGContext, rect: CGRect, radius: CGFloat) {
-    context.addPath(CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil))
-}
+    // Speaker driver (rect) + cone (triangle), as one filled polygon.
+    let speaker = CGMutablePath()
+    speaker.move(to: point(14, 38))
+    speaker.addLine(to: point(30, 38))
+    speaker.addLine(to: point(52, 22))
+    speaker.addLine(to: point(52, 78))
+    speaker.addLine(to: point(30, 62))
+    speaker.addLine(to: point(14, 62))
+    speaker.closeSubpath()
+    context.addPath(speaker)
+    context.setFillColor(color)
+    context.fillPath()
 
-func drawSystemSymbol(
-    _ symbolName: String,
-    in context: CGContext,
-    rect: CGRect,
-    pointSize: CGFloat,
-    color: NSColor,
-    weight: NSFont.Weight = .regular,
-    mirrored: Bool = false
-) {
-    let configuration = NSImage.SymbolConfiguration(pointSize: pointSize, weight: weight, scale: .large)
-    guard let symbol = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
-        .withSymbolConfiguration(configuration) else { return }
-    guard let tinted = tintedImage(from: symbol, color: color) else { return }
-    var proposedRect = CGRect(origin: .zero, size: tinted.size)
-    guard let cgImage = tinted.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil) else { return }
-
-    context.saveGState()
-    if mirrored {
-        context.translateBy(x: rect.minX + rect.maxX, y: 0)
-        context.scaleBy(x: -1, y: 1)
-    }
-    context.translateBy(x: 0, y: rect.minY + rect.maxY)
-    context.scaleBy(x: 1, y: -1)
-    context.interpolationQuality = .high
-    context.draw(cgImage, in: rect)
-    context.restoreGState()
-}
-
-func tintedImage(from image: NSImage, color: NSColor) -> NSImage? {
-    let tinted = NSImage(size: image.size)
-    tinted.lockFocus()
-    let bounds = CGRect(origin: .zero, size: image.size)
-    image.draw(in: bounds)
-    color.set()
-    bounds.fill(using: .sourceAtop)
-    tinted.unlockFocus()
-    return tinted
-}
-
-func drawHeadphonePriorityMark(in context: CGContext, size: CGFloat, strokeColor: CGColor, soundColor: CGColor) {
-    drawSystemSymbol(
-        "headphones",
-        in: context,
-        rect: CGRect(x: size * 0.03, y: size * 0.18, width: size * 0.58, height: size * 0.58),
-        pointSize: size * 0.40,
-        color: NSColor(cgColor: strokeColor) ?? .white,
-        weight: .regular,
-        mirrored: false
+    // Lock body (filled rounded rect): SVG x62 y62 w26 h21 → native y17..38.
+    let body = CGPath(
+        roundedRect: CGRect(x: 62 * f, y: 17 * f, width: 26 * f, height: 21 * f),
+        cornerWidth: 5 * f,
+        cornerHeight: 5 * f,
+        transform: nil
     )
+    context.addPath(body)
+    context.setFillColor(color)
+    context.fillPath()
 
-    let laneHeight = size * 0.115
-    let laneX = size * 0.64
-    let laneYs = [size * 0.20, size * 0.42, size * 0.64]
-    let laneWidths = [size * 0.24, size * 0.20, size * 0.16]
-    let laneColors = [soundColor, strokeColor.copy(alpha: 0.92)!, strokeColor.copy(alpha: 0.72)!]
-
-    for index in laneYs.indices {
-        let rect = CGRect(
-            x: laneX,
-            y: laneYs[index],
-            width: laneWidths[index],
-            height: laneHeight
-        )
-        context.setFillColor(laneColors[index])
-        drawRoundedPath(context, rect: rect, radius: laneHeight / 2)
-        context.fillPath()
+    // Shackle (stroked arch). Closed: legs meet the body top. Open: lifted, asymmetric legs.
+    // clockwise:true bulges the arc upward in the context's native (y-up) space.
+    let shackle = CGMutablePath()
+    if shackleOpen {
+        shackle.move(to: point(67, 59))
+        shackle.addLine(to: point(67, 47))
+        shackle.addArc(center: point(75, 47), radius: 8 * f, startAngle: .pi, endAngle: 0, clockwise: true)
+        shackle.addLine(to: point(83, 49))
+    } else {
+        shackle.move(to: point(67, 62))
+        shackle.addLine(to: point(67, 57))
+        shackle.addArc(center: point(75, 57), radius: 8 * f, startAngle: .pi, endAngle: 0, clockwise: true)
+        shackle.addLine(to: point(83, 62))
     }
-
-    let priorityDotRadius = size * 0.044
-    context.setFillColor(soundColor)
-    context.fillEllipse(in: CGRect(
-        x: size * 0.58 - priorityDotRadius,
-        y: size * 0.255 - priorityDotRadius,
-        width: priorityDotRadius * 2,
-        height: priorityDotRadius * 2
-    ))
-}
-
-extension CGContext {
-    func strokeArcSegments(boundingBox: CGRect, startAngle: CGFloat, endAngle: CGFloat) {
-        let path = CGMutablePath()
-        path.addArc(
-            center: CGPoint(x: boundingBox.midX, y: boundingBox.midY),
-            radius: boundingBox.height / 2,
-            startAngle: startAngle * .pi / 180,
-            endAngle: endAngle * .pi / 180,
-            clockwise: false
-        )
-        addPath(path)
-        strokePath()
-    }
+    context.addPath(shackle)
+    context.setStrokeColor(color)
+    context.setLineWidth(6 * f)
+    context.setLineCap(.round)
+    context.setLineJoin(.round)
+    context.strokePath()
 }
 
 func generateAppIcon() throws {
@@ -144,35 +95,30 @@ func generateAppIcon() throws {
     context.addPath(squircle)
     context.clip()
 
+    // Deep indigo, subtle gradient (#2a2d6e → #171a45 → #101230).
     let gradient = CGGradient(
         colorsSpace: colorSpace,
         colors: [
-            CGColor(srgbRed: 0.05, green: 0.15, blue: 0.38, alpha: 1),
-            CGColor(srgbRed: 0.07, green: 0.44, blue: 0.74, alpha: 1),
-            CGColor(srgbRed: 0.08, green: 0.67, blue: 0.62, alpha: 1)
+            CGColor(srgbRed: 0.165, green: 0.176, blue: 0.431, alpha: 1),
+            CGColor(srgbRed: 0.090, green: 0.102, blue: 0.271, alpha: 1),
+            CGColor(srgbRed: 0.063, green: 0.071, blue: 0.188, alpha: 1)
         ] as CFArray,
-        locations: [0, 0.55, 1]
+        locations: [0, 0.70, 1]
     )!
     context.drawLinearGradient(
         gradient,
-        start: CGPoint(x: 0, y: size),
-        end: CGPoint(x: size, y: 0),
+        start: CGPoint(x: size * 0.18, y: size),
+        end: CGPoint(x: size * 0.82, y: 0),
         options: []
     )
     context.resetClip()
 
-    context.setFillColor(CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 0.12))
-        context.fillEllipse(in: CGRect(x: size * 0.10, y: size * 0.56, width: size * 0.42, height: size * 0.42))
-        context.fillEllipse(in: CGRect(x: size * 0.54, y: size * 0.14, width: size * 0.26, height: size * 0.26))
-
-    withFlippedContext(context, size: size) {
-        drawHeadphonePriorityMark(
-            in: context,
-            size: size,
-            strokeColor: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1),
-            soundColor: CGColor(srgbRed: 0.49, green: 1.0, blue: 0.86, alpha: 1)
-        )
-    }
+    drawSpeakerLockMark(
+        in: context,
+        size: size,
+        color: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1),
+        shackleOpen: false
+    )
 
     let image = context.makeImage()!
     try savePNG(image, to: "soundlock_1024.png")
@@ -183,24 +129,25 @@ func generateAppIcon() throws {
     try savePNG(image, to: docsDir.appendingPathComponent("readme-icon.png").path)
 }
 
-func generateStatusIcon() throws {
+/// Menu bar template icon. Generated twice: locked (full opacity) and unlocked
+/// (open shackle, dimmed). Template rendering preserves the baked-in alpha as tint.
+func generateStatusIcon(open: Bool, alpha: CGFloat, to path: String) throws {
     let pixelSize = 96
     let size = CGFloat(pixelSize)
     let context = makeBitmapContext(size: pixelSize, transparent: true)
 
-    withFlippedContext(context, size: size) {
-        drawHeadphonePriorityMark(
-            in: context,
-            size: size,
-            strokeColor: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1),
-            soundColor: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
-        )
-    }
+    drawSpeakerLockMark(
+        in: context,
+        size: size,
+        color: CGColor(srgbRed: 1, green: 1, blue: 1, alpha: alpha),
+        shackleOpen: open
+    )
 
     let image = context.makeImage()!
-    try savePNG(image, to: "StatusIcon.png")
+    try savePNG(image, to: path)
 }
 
 try generateAppIcon()
-try generateStatusIcon()
-print("✅  soundlock_1024.png, docs/icon.png, docs/readme-icon.png, and StatusIcon.png saved")
+try generateStatusIcon(open: false, alpha: 1.0, to: "StatusIcon.png")
+try generateStatusIcon(open: true, alpha: 0.55, to: "StatusIconUnlocked.png")
+print("✅  soundlock_1024.png, docs/icon.png, docs/readme-icon.png, StatusIcon.png, and StatusIconUnlocked.png saved")

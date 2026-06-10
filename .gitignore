@@ -51,3 +51,6 @@ xcuserdata/
 
 # Logs
 *.log
+
+# Brainstorming scratch
+.superpowers/
