@@ -12,8 +12,7 @@
 
 <p align="center">
   <a href="https://mancan.digital/products/soundlock.html"><strong>Website</strong></a> ·
-  <a href="https://github.com/lucasmancan/SoundLock/releases/latest"><strong>Download</strong></a> ·
-  <a href="https://mancan.digital/products/soundlock.html"><strong>Buy a license</strong></a>
+  <a href="https://github.com/lucasmancan/SoundLock/releases/latest"><strong>Download (free)</strong></a>
 </p>
 
 <p align="center">
@@ -145,11 +144,11 @@ Then open the app normally.
 
 ---
 
-## Pricing & license
+## Price & license
 
-SoundLock is a commercial product. See [mancan.digital/products/soundlock.html](https://mancan.digital/products/soundlock.html) for current pricing and to purchase a license.
+SoundLock is **free**. Download it, use it, keep it — no cost, no account, no strings.
 
-Downloading the app constitutes acceptance of the [End-User License Agreement](./LICENSE.txt). The software is proprietary — all rights reserved.
+The app is **closed source**: the code is proprietary and is not distributed here. Downloading the app constitutes acceptance of the [license](./LICENSE.txt). © 2026 mancan.digital — all rights reserved.
 
 ---
 
