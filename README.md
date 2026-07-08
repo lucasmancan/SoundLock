@@ -151,4 +151,6 @@ If SoundLock saved your sanity, consider buying me a coffee.
 
 ## License
 
-MIT
+Proprietary — © 2026 mancan.digital. All rights reserved. Closed source; not for redistribution.
+
+SoundLock ships as a free download for end users under the [freeware license](https://github.com/lucasmancan/SoundLock/blob/main/LICENSE.txt) published on the public repo.
