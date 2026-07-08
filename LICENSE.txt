@@ -1,0 +1,64 @@
+SoundLock — End-User License Agreement (EULA)
+
+Copyright © 2026 mancan.digital (Lucas Mancan). All rights reserved.
+
+This End-User License Agreement ("Agreement") is a legal agreement between you
+("Licensee") and mancan.digital ("Licensor") for the SoundLock software
+application, including all associated binaries, assets, and documentation
+("Software").
+
+By downloading, installing, or using the Software, you agree to be bound by the
+terms of this Agreement. If you do not agree, do not download, install, or use
+the Software.
+
+1. GRANT OF LICENSE
+   Subject to your payment of the applicable license fee and your compliance
+   with this Agreement, Licensor grants you a personal, non-exclusive,
+   non-transferable, revocable license to install and use the Software on Mac
+   computers that you own or control, for your own use. A separate license is
+   required for commercial or organizational deployment; contact Licensor for
+   terms.
+
+2. OWNERSHIP
+   The Software is licensed, not sold. Licensor retains all right, title, and
+   interest in and to the Software, including all intellectual property rights.
+   No source code is provided or licensed under this Agreement.
+
+3. RESTRICTIONS
+   You may not, and may not permit others to:
+   (a) copy, distribute, sublicense, rent, lease, lend, or sell the Software;
+   (b) reverse engineer, decompile, or disassemble the Software, except to the
+       extent that applicable law expressly permits despite this limitation;
+   (c) modify, adapt, or create derivative works of the Software;
+   (d) remove or alter any proprietary notices or labels on the Software;
+   (e) use the Software to build a competing product.
+
+4. TRIAL / EVALUATION
+   If the Software is provided on a trial or evaluation basis, that use is
+   permitted only for the stated evaluation period and subject to any feature
+   limitations imposed by the Software. Continued use beyond that period
+   requires a paid license.
+
+5. UPDATES
+   Any updates or new versions Licensor provides are governed by this Agreement
+   unless accompanied by a separate license.
+
+6. TERMINATION
+   This license terminates automatically if you breach any term. On termination
+   you must stop using and delete all copies of the Software.
+
+7. DISCLAIMER OF WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+8. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL LICENSOR BE LIABLE
+   FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR
+   ANY LOSS OF DATA, USE, OR PROFITS, ARISING OUT OF OR RELATED TO THE SOFTWARE.
+
+9. GOVERNING LAW
+   This Agreement is governed by the laws of the jurisdiction in which Licensor
+   is established, without regard to conflict-of-law principles.
+
+For licensing inquiries: https://mancan.digital
