@@ -54,3 +54,6 @@ xcuserdata/
 
 # Brainstorming scratch
 .superpowers/
+
+# Release artifact (distributed via GitHub Releases)
+SoundLock.app.zip

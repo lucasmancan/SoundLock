@@ -102,7 +102,7 @@ SoundLock is built around a single principle: do nothing unless the system tells
 
 ## Download
 
-Grab the prebuilt app: [SoundLock.app.zip](./SoundLock.app.zip)
+Grab the prebuilt app from the [latest release](https://github.com/lucasmancan/SoundLock/releases/latest).
 
 Unzip, drag `SoundLock.app` to `/Applications`, launch. macOS Gatekeeper may block first run since the build is unsigned — right-click the app → **Open** → **Open** to bypass, or run `xattr -dr com.apple.quarantine /Applications/SoundLock.app`.
 
