@@ -22,8 +22,9 @@
 ---
 
 > **A product by [mancan.digital](https://mancan.digital).** This repository is the public
-> home for SoundLock — downloads, release notes, and support. The source code is proprietary
-> and not distributed here.
+> home for SoundLock — full source, downloads, release notes, and support. The source is
+> **available, not open**: read it, build it, run it — but redistribution and derivative
+> works are not permitted. See [LICENSE](./LICENSE).
 
 ---
 
@@ -144,11 +145,38 @@ Then open the app normally.
 
 ---
 
+## Building from source
+
+Requires macOS 13 or later and the Xcode Command Line Tools.
+
+```bash
+git clone https://github.com/lucasmancan/SoundLock.git
+cd SoundLock
+bash build.sh
+open SoundLock.app
+```
+
+To install your own build permanently:
+
+```bash
+cp -r SoundLock.app /Applications/
+```
+
+Then open SoundLock, enable **Launch at login**, and forget about it.
+
+---
+
 ## Price & license
 
 SoundLock is **free**. Download it, use it, keep it — no cost, no account, no strings.
 
-The app is **closed source**: the code is proprietary and is not distributed here. Downloading the app constitutes acceptance of the [license](./LICENSE.txt). © 2026 mancan.digital — all rights reserved.
+The source is **available, not open source**. You may read this code, build it, and run
+your own build for inspection, evaluation, and personal use. You may **not** redistribute
+it, publish modified or derivative versions, or reuse the code in another project.
+Downloading the app or its source constitutes acceptance of the [license](./LICENSE).
+
+Commercial or redistribution licenses are available on request.
+© 2026 mancan.digital — all rights reserved.
 
 ---
 

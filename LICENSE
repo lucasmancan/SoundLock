@@ -1,0 +1,77 @@
+SoundLock — Software License (Source Available, All Rights Reserved)
+
+Copyright © 2026 mancan.digital (Lucas Mancan). All rights reserved.
+
+SoundLock ("the Software") is free to download and use, and its source code is
+published for inspection. It is NOT open source software. The source is made
+available under the terms below; all rights not expressly granted are reserved.
+
+By downloading, installing, using, or viewing the Software or its source code,
+you agree to these terms. If you do not agree, do not download, install, use, or
+view them.
+
+1. LICENSE GRANT — BINARIES
+   You are granted a personal, non-exclusive, non-transferable, worldwide,
+   royalty-free license to download, install, and use the Software, at no cost,
+   on Mac computers that you own or control, for personal or commercial use.
+
+2. LICENSE GRANT — SOURCE CODE
+   You are additionally granted a personal, non-exclusive, non-transferable,
+   worldwide, royalty-free license to view, download, and compile the source
+   code, and to run the resulting build on Mac computers that you own or control,
+   for the purposes of inspection, evaluation, security review, and personal use.
+
+   You may modify the source code locally for your own personal use. You may not
+   distribute any such modification, in source or binary form, to anyone.
+
+3. OWNERSHIP
+   The Software is licensed, not sold. mancan.digital retains all right, title,
+   and interest in and to the Software and its source code, including all
+   intellectual property rights. Publication of the source code grants no
+   ownership, no trademark rights, and no license beyond what is expressly
+   stated here.
+
+4. RESTRICTIONS
+   You may not, and may not permit others to:
+   (a) sell, rent, lease, sublicense, relicense, or charge others for the
+       Software or its source code;
+   (b) copy, redistribute, republish, mirror, repackage, or host the Software or
+       its source code, in whole or in part, in source or binary form, outside
+       the official channels published by mancan.digital;
+   (c) distribute, publish, or otherwise make available any modified version,
+       derivative work, fork, or work incorporating any portion of the source
+       code;
+   (d) use the source code, in whole or in part, in any other product or
+       project, whether commercial or noncommercial;
+   (e) remove or alter any copyright, license, proprietary notice, or branding.
+
+   Nothing in this section restricts any right you have under applicable law
+   that cannot be waived by contract.
+
+5. CONTRIBUTIONS
+   If you submit a pull request, patch, issue content, or any other contribution
+   to the Software, you assign to mancan.digital all right, title, and interest
+   in that contribution, and you confirm that you have the right to do so. Your
+   contribution is thereafter governed by this license. Contributions are
+   accepted at the sole discretion of mancan.digital.
+
+6. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL mancan.digital BE
+   LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE
+   DAMAGES, OR ANY LOSS OF DATA, USE, OR PROFITS, ARISING OUT OF OR RELATED TO
+   THE SOFTWARE OR ITS SOURCE CODE.
+
+8. TERMINATION
+   This license terminates automatically if you breach any term. On termination
+   you must stop using the Software and its source code, and delete all copies
+   in your possession.
+
+Commercial, redistribution, or OEM licenses are available on request.
+
+Official home: https://github.com/lucasmancan/SoundLock
+Contact: https://mancan.digital
